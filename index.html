@@ -611,20 +611,47 @@
     border: 1px solid var(--border);
     background: var(--surface-alt);
     position: relative;
+    height: 180px;
   }
   .screenshot img {
     width: 100%;
+    height: 100%;
     display: block;
+    object-fit: cover;
+    object-position: top center;
     cursor: zoom-in;
     transition: opacity .15s ease;
   }
   .screenshot img:active { opacity: .85; }
+  /* 點擊放大提示 icon — 只有圖片載入成功時才顯示 */
+  .screenshot .zoom-hint {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 30px;
+    height: 30px;
+    background: rgba(0,0,0,.72);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: white;
+  }
+  .screenshot .zoom-hint svg { width: 16px; height: 16px; }
+  .screenshot:has(.empty:not([hidden])) .zoom-hint { display: none; }
   .screenshot .empty {
-    padding: 24px 14px;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     font-size: 12px;
     line-height: 1.6;
     color: var(--text-mute);
+    gap: 4px;
   }
   .screenshot .empty code {
     display: inline-block;
@@ -1208,30 +1235,6 @@
 
   <article class="resv">
     <div class="resv-head">
-      <div class="resv-name">早安有喜 自由店<small>6/27 ・ 午餐</small></div>
-      <span class="badge info">不接訂位</span>
-    </div>
-    <div class="resv-meta">
-      <div class="row">
-        <span class="label">地址</span>
-        <span class="val">台中市東區自由路四段 138 號</span>
-        <button class="icon-btn" data-copy="台中市東區自由路四段 138 號" aria-label="複製"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-        <a class="icon-btn map" href="https://www.google.com/maps/search/?api=1&query=台中市東區自由路四段138號" target="_blank" rel="noopener" aria-label="地圖"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></a>
-      </div>
-      <div class="row">
-        <span class="label">電話</span>
-        <a class="val" href="tel:0422130201">04-2213-0201</a>
-      </div>
-    </div>
-    <div class="screenshot">
-      <img src="screenshots/breakfast.jpg" alt="預約截圖" data-caption="早安有喜 自由店"
-           onerror="this.style.display='none';this.nextElementSibling.hidden=false">
-      <div class="empty" hidden>📷 預約截圖位置<br><code>screenshots/breakfast.jpg</code></div>
-    </div>
-  </article>
-
-  <article class="resv">
-    <div class="resv-head">
       <div class="resv-name">山鯨本家 HONKE<small>6/27 ・ 晚餐 20:00</small></div>
       <span class="badge ok">✅ 已預約</span>
     </div>
@@ -1663,6 +1666,16 @@
   }
 
   initPin();
+
+  // === 截圖區塊注入「放大」icon ===
+  const zoomIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+  document.querySelectorAll('.screenshot').forEach(box => {
+    if (box.querySelector('.zoom-hint')) return;
+    const hint = document.createElement('div');
+    hint.className = 'zoom-hint';
+    hint.innerHTML = zoomIconSvg;
+    box.appendChild(hint);
+  });
 
   // === Lightbox 點擊圖片放大 ===
   const lightbox = document.getElementById('lightbox');
